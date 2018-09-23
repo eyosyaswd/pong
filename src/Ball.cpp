@@ -24,4 +24,9 @@ public:
     float ballAngleRad = 90.0;
   }
 
+  sf::CircleShape getBall() {
+    return ball;
+  }
+
+
 };
