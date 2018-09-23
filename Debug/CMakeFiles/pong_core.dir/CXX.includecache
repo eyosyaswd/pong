@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/f85/ewdagn/cs437/pong/src/AIView.cpp
+
+/home/f85/ewdagn/cs437/pong/src/Ball.cpp
+SFML/Graphics.hpp
+-
+iostream
+-
+cmath
+-
+
+/home/f85/ewdagn/cs437/pong/src/Logic.cpp
+SFML/Graphics.hpp
+-
+
+/home/f85/ewdagn/cs437/pong/src/PlayerView.cpp
+

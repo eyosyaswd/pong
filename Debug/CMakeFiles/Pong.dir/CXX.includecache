@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/f85/ewdagn/cs437/pong/bin/Pong.cpp
+SFML/Graphics.hpp
+-
+iostream
+-
+cmath
+-
+
