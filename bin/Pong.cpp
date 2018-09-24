@@ -10,7 +10,7 @@
 int main(int argc, char** argv)
 {
   // create main window
-  sf::RenderWindow App(sf::VideoMode(800,600,32), "Pong", sf::Style::Close | sf::Style::Titlebar);
+  sf::RenderWindow App(sf::VideoMode(800,600,32), "Pong", sf::Style::Close | sf::Style::Titlebar | sf::Style::Resize);
   bool gameStarted = false;
 
   // load the background
@@ -47,12 +47,13 @@ int main(int argc, char** argv)
 
   // create player paddle
   sf::RectangleShape playerPaddle(sf::Vector2f(10.0f, 100.0f));
-  playerPaddle.setOrigin(5, 50);
-  playerPaddle.setPosition(0, 275);
+  playerPaddle.setOrigin(playerPaddle.getSize().x / 2, playerPaddle.getSize().y / 2);
+  playerPaddle.setPosition(0.0 + playerPaddle.getSize().x / 2, App.getSize().y / 2);
 
   // create ai paddle
   sf::RectangleShape aiPaddle(sf::Vector2f(10.0f, 100.0f));
-  aiPaddle.setPosition(790, 275);
+  aiPaddle.setOrigin(aiPaddle.getSize().x/2, aiPaddle.getSize().y/2);
+  aiPaddle.setPosition(App.getSize().x - aiPaddle.getSize().x / 2, App.getSize().y / 2);
 
   // create ball
   sf::Vector2f ballDirection(1.0, 1.0);
@@ -104,18 +105,20 @@ int main(int argc, char** argv)
       // keyboard input for player paddle
       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)){
         //std::cout << std::to_string(playerPaddle.getPosition().y) + "\n";
-        if (playerPaddle.getPosition().y > 0.0) {
+        if (playerPaddle.getPosition().y - playerPaddle.getSize().y / 2.0 > 0.0) {
           playerPaddle.move(0.0f, -0.2f);
         }
       }
       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)){
-        if (playerPaddle.getPosition().y < 500.0) {
+        if (playerPaddle.getPosition().y + (playerPaddle.getSize().y / 2.0) < App.getSize().y) {
           playerPaddle.move(0.0f, 0.2f);
         }
       }
 
       // ai paddle movement
-      aiPaddle.move(0.0f, ballSpeed * std::sin(ballAngleRad));
+      if ( ( (aiPaddle.getPosition().y - aiPaddle.getSize().y) > (0.0) ) || ( (aiPaddle.getPosition().y < App.getSize().y) ) ){
+        aiPaddle.move(0.0f, ballSpeed * std::sin(ballAngleRad));
+      }
 
     }
 
