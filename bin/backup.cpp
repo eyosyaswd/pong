@@ -1,3 +1,5 @@
+
+
 // This is the Game Application Layer. It will include things like
 // -- the game loop
 // -- SFML layer
@@ -11,7 +13,6 @@ int main(int argc, char** argv)
 {
   // create main window
   sf::RenderWindow App(sf::VideoMode(800,600,32), "Pong", sf::Style::Close | sf::Style::Titlebar);
-  bool gameStarted = false;
 
   // load the background
   sf::Texture backgroundTexture;
@@ -23,14 +24,16 @@ int main(int argc, char** argv)
   backgroundSprite.setTexture(backgroundTexture);
   backgroundSprite.setOrigin(18, 10);
 
-  // load the font for the scores
+
+
+  // load the font
   sf::Font font;
   if (!font.loadFromFile("../res/fonts/neuropol_x_rg.ttf")){
     std::cout << "Error occured while loading font file" << std::endl;
   }
 
   // create player's score
-  int playerScore = 0;
+  int playerScore = 5;
   sf::Text playerScoreTxt;
   playerScoreTxt.setFont(font);
   playerScoreTxt.setString(std::to_string(playerScore));
@@ -38,7 +41,7 @@ int main(int argc, char** argv)
   playerScoreTxt.setPosition(50, 0);
 
   // create ai's score
-  int aiScore = 0;
+  int aiScore = 11;
   sf::Text aiScoreTxt;
   aiScoreTxt.setFont(font);
   aiScoreTxt.setString(std::to_string(aiScore));
@@ -55,15 +58,25 @@ int main(int argc, char** argv)
   aiPaddle.setPosition(790, 275);
 
   // create ball
-  sf::Vector2f ballDirection(1.0, 1.0);
+  // sf::Texture ballTexture;
+  // if (!backgroundTexture.loadFromFile("../res/images/ball.png")) {
+  //   std::cout << "Error occued while loading ball image file" << std::endl;
+  // }
   float ballRadius = 8.0;
-  float ballSpeed = 0.2;
+  float ballSpeed = 0.2f;
+  // sf::Vector2f direction()
+
   sf::CircleShape ball(ballRadius);
+  // ball.setTexture(&ballTexture);
+  // ball.setTextureRect(sf::IntRect(1, 1, 10, 10));
   ball.setOrigin(ballRadius, ballRadius);
   ball.setPosition(App.getSize().x / 2, App.getSize().y / 2);
 
-  float ballAngleRad = 90.0;
   float PI = 3.14159265f;
+  //float ballAngleRad = 90 * (PI / 180);
+  float ballAngleRad = 90.0;
+
+  bool gameStarted = false;
 
 
   // start main loop
@@ -78,27 +91,27 @@ int main(int argc, char** argv)
         App.close();
     }
 
-    // start game if Space is pressed
+
+    // move ball
+    //std::cout << std::to_string(ball.getPosition().y);
+    if (ball.getPosition().y > 600.0) {
+      ballAngleRad = ballAngleRad * -1.0;
+    } else if (ball.getPosition().y < 0.0) {
+      ballAngleRad = ballAngleRad * -1.0;
+    } else if (ball.getPosition().x < 10.0) {
+      ballAngleRad = (PI/180) - (ballAngleRad * -1.0);
+    } else if (ball.getPosition().x > 780.0) {
+      ballAngleRad = (PI/180) - (ballAngleRad * -1.0);
+    }
+
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {
       gameStarted = true;
     }
 
-
     if (gameStarted == true) {
-      // change ball direction when colliding
-      // TODO: Change ball direction when colliding
-      if (ball.getPosition().y > 600.0) {
-        ballAngleRad = ballAngleRad * -1.0;
-      } else if (ball.getPosition().y < 0.0) {
-        ballAngleRad = ballAngleRad * -1.0;
-      } else if (ball.getPosition().x < 10.0) {
-        ballAngleRad = (PI/180) - (ballAngleRad * -1.0);
-      } else if (ball.getPosition().x > 780.0) {
-        ballAngleRad = (PI/180) - (ballAngleRad * -1.0);
-      }
 
       //start moving the ball
-      // TODO: Start moving the ball
+//      float Time = Clock.getElapsedTime().asSeconds();
       ball.move(ballSpeed * std::cos(ballAngleRad), ballSpeed * std::sin(ballAngleRad));
 
       // keyboard input for player paddle
@@ -114,15 +127,13 @@ int main(int argc, char** argv)
         }
       }
 
-      // ai paddle movement
-      aiPaddle.move(0.0f, ballSpeed * std::sin(ballAngleRad));
-
     }
+
 
     //clear screen
     App.clear();
 
-    // draw objects
+    // draw
     App.draw(backgroundSprite);
     App.draw(playerScoreTxt);
     App.draw(aiScoreTxt);

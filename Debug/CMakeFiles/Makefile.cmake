@@ -42,6 +42,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
+  "CMakeFiles/Demo.dir/DependInfo.cmake"
   "CMakeFiles/Pong.dir/DependInfo.cmake"
   "CMakeFiles/pong_core.dir/DependInfo.cmake"
   )

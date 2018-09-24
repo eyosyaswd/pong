@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/f85/ewdagn/cs437/pong/bin/Demo.cpp
+SFML/Graphics.hpp
+-
+random
+-
+functional
+-
+cstdlib
+-
+cmath
+-
+iostream
+-
+

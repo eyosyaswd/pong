@@ -111,6 +111,19 @@ depend:
 .PHONY : depend
 
 #=============================================================================
+# Target rules for targets named Demo
+
+# Build rule for target.
+Demo: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 Demo
+.PHONY : Demo
+
+# fast build rule for target.
+Demo/fast:
+	$(MAKE) -f CMakeFiles/Demo.dir/build.make CMakeFiles/Demo.dir/build
+.PHONY : Demo/fast
+
+#=============================================================================
 # Target rules for targets named Pong
 
 # Build rule for target.
@@ -135,6 +148,33 @@ pong_core: cmake_check_build_system
 pong_core/fast:
 	$(MAKE) -f CMakeFiles/pong_core.dir/build.make CMakeFiles/pong_core.dir/build
 .PHONY : pong_core/fast
+
+bin/Demo.o: bin/Demo.cpp.o
+
+.PHONY : bin/Demo.o
+
+# target to build an object file
+bin/Demo.cpp.o:
+	$(MAKE) -f CMakeFiles/Demo.dir/build.make CMakeFiles/Demo.dir/bin/Demo.cpp.o
+.PHONY : bin/Demo.cpp.o
+
+bin/Demo.i: bin/Demo.cpp.i
+
+.PHONY : bin/Demo.i
+
+# target to preprocess a source file
+bin/Demo.cpp.i:
+	$(MAKE) -f CMakeFiles/Demo.dir/build.make CMakeFiles/Demo.dir/bin/Demo.cpp.i
+.PHONY : bin/Demo.cpp.i
+
+bin/Demo.s: bin/Demo.cpp.s
+
+.PHONY : bin/Demo.s
+
+# target to generate assembly for a file
+bin/Demo.cpp.s:
+	$(MAKE) -f CMakeFiles/Demo.dir/build.make CMakeFiles/Demo.dir/bin/Demo.cpp.s
+.PHONY : bin/Demo.cpp.s
 
 bin/Pong.o: bin/Pong.cpp.o
 
@@ -279,8 +319,12 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... Demo"
 	@echo "... Pong"
 	@echo "... pong_core"
+	@echo "... bin/Demo.o"
+	@echo "... bin/Demo.i"
+	@echo "... bin/Demo.s"
 	@echo "... bin/Pong.o"
 	@echo "... bin/Pong.i"
 	@echo "... bin/Pong.s"
