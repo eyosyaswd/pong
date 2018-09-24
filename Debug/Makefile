@@ -124,6 +124,19 @@ Demo/fast:
 .PHONY : Demo/fast
 
 #=============================================================================
+# Target rules for targets named backup
+
+# Build rule for target.
+backup: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 backup
+.PHONY : backup
+
+# fast build rule for target.
+backup/fast:
+	$(MAKE) -f CMakeFiles/backup.dir/build.make CMakeFiles/backup.dir/build
+.PHONY : backup/fast
+
+#=============================================================================
 # Target rules for targets named Pong
 
 # Build rule for target.
@@ -202,6 +215,33 @@ bin/Pong.s: bin/Pong.cpp.s
 bin/Pong.cpp.s:
 	$(MAKE) -f CMakeFiles/Pong.dir/build.make CMakeFiles/Pong.dir/bin/Pong.cpp.s
 .PHONY : bin/Pong.cpp.s
+
+bin/backup.o: bin/backup.cpp.o
+
+.PHONY : bin/backup.o
+
+# target to build an object file
+bin/backup.cpp.o:
+	$(MAKE) -f CMakeFiles/backup.dir/build.make CMakeFiles/backup.dir/bin/backup.cpp.o
+.PHONY : bin/backup.cpp.o
+
+bin/backup.i: bin/backup.cpp.i
+
+.PHONY : bin/backup.i
+
+# target to preprocess a source file
+bin/backup.cpp.i:
+	$(MAKE) -f CMakeFiles/backup.dir/build.make CMakeFiles/backup.dir/bin/backup.cpp.i
+.PHONY : bin/backup.cpp.i
+
+bin/backup.s: bin/backup.cpp.s
+
+.PHONY : bin/backup.s
+
+# target to generate assembly for a file
+bin/backup.cpp.s:
+	$(MAKE) -f CMakeFiles/backup.dir/build.make CMakeFiles/backup.dir/bin/backup.cpp.s
+.PHONY : bin/backup.cpp.s
 
 src/AIView.o: src/AIView.cpp.o
 
@@ -320,6 +360,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... Demo"
+	@echo "... backup"
 	@echo "... Pong"
 	@echo "... pong_core"
 	@echo "... bin/Demo.o"
@@ -328,6 +369,9 @@ help:
 	@echo "... bin/Pong.o"
 	@echo "... bin/Pong.i"
 	@echo "... bin/Pong.s"
+	@echo "... bin/backup.o"
+	@echo "... bin/backup.i"
+	@echo "... bin/backup.s"
 	@echo "... src/AIView.o"
 	@echo "... src/AIView.i"
 	@echo "... src/AIView.s"

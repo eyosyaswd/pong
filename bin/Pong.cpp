@@ -5,15 +5,21 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <cmath>
+#include <cstdlib>
 
 
 int main(int argc, char** argv)
 {
-  // create main window
-  sf::RenderWindow App(sf::VideoMode(800,600,32), "Pong", sf::Style::Close | sf::Style::Titlebar | sf::Style::Resize);
-  bool gameStarted = false;
+  // init app width and height
+  float appWidth = 800.0;
+  float appHeight = 600.0;
 
-  // load the background
+  // create main window
+  sf::RenderWindow App(sf::VideoMode(appWidth,appHeight,32), "Pong", sf::Style::Close | sf::Style::Titlebar | sf::Style::Resize);
+  bool gameStarted = false;
+  sf::Clock Clock;
+
+  // load the background image
   sf::Texture backgroundTexture;
   if (!backgroundTexture.loadFromFile("../res/images/soccer_field_background.jpg")) {
     std::cout << "Error occued while loading background image file" << std::endl;
@@ -23,13 +29,13 @@ int main(int argc, char** argv)
   backgroundSprite.setTexture(backgroundTexture);
   backgroundSprite.setOrigin(18, 10);
 
-  // load the font for the scores
+  // load a font used for writing the score and messages
   sf::Font font;
   if (!font.loadFromFile("../res/fonts/neuropol_x_rg.ttf")){
     std::cout << "Error occured while loading font file" << std::endl;
   }
 
-  // create player's score
+  // init player's score
   int playerScore = 0;
   sf::Text playerScoreTxt;
   playerScoreTxt.setFont(font);
@@ -37,34 +43,33 @@ int main(int argc, char** argv)
   playerScoreTxt.setCharacterSize(50);
   playerScoreTxt.setPosition(50, 0);
 
-  // create ai's score
+  // init ai's score
   int aiScore = 0;
   sf::Text aiScoreTxt;
   aiScoreTxt.setFont(font);
   aiScoreTxt.setString(std::to_string(aiScore));
   aiScoreTxt.setCharacterSize(50);
-  aiScoreTxt.setPosition(App.getSize().x - 100, 0);
+  aiScoreTxt.setPosition(appWidth - 100, 0);
 
-  // create player paddle
-  sf::RectangleShape playerPaddle(sf::Vector2f(10.0f, 100.0f));
+  // init player paddle
+  sf::RectangleShape playerPaddle(sf::Vector2f(10.0, 100.0));
   playerPaddle.setOrigin(playerPaddle.getSize().x / 2, playerPaddle.getSize().y / 2);
-  playerPaddle.setPosition(0.0 + playerPaddle.getSize().x / 2, App.getSize().y / 2);
+  playerPaddle.setPosition(0.0 + playerPaddle.getSize().x / 2, appHeight / 2);
+  float playerPaddleSpeed = 300.0;
 
-  // create ai paddle
-  sf::RectangleShape aiPaddle(sf::Vector2f(10.0f, 100.0f));
+  // init ai paddle
+  sf::RectangleShape aiPaddle(sf::Vector2f(10.0, 100.0));
   aiPaddle.setOrigin(aiPaddle.getSize().x/2, aiPaddle.getSize().y/2);
-  aiPaddle.setPosition(App.getSize().x - aiPaddle.getSize().x / 2, App.getSize().y / 2);
+  aiPaddle.setPosition(appWidth - aiPaddle.getSize().x / 2, appHeight / 2);
+  float aiPaddleSpeed = 200.0;
 
-  // create ball
+  // init ball
   sf::Vector2f ballDirection(1.0, 1.0);
   float ballRadius = 8.0;
-  float ballSpeed = 0.2;
+  float ballSpeed = 300.0;
   sf::CircleShape ball(ballRadius);
   ball.setOrigin(ballRadius, ballRadius);
-  ball.setPosition(App.getSize().x / 2, App.getSize().y / 2);
-
-  float ballAngleRad = 90.0;
-  float PI = 3.14159265f;
+  ball.setPosition(appWidth / 2, appHeight / 2);
 
 
   // start main loop
@@ -79,45 +84,88 @@ int main(int argc, char** argv)
         App.close();
     }
 
-    // start game if Space is pressed
+    // get elapsed time
+    float elapsedTime = Clock.getElapsedTime().asSeconds();
+    Clock.restart();
+
+    // start/unpause game if Space bar is pressed
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {
+      gameStarted = true;
+    }
+
+    // pause/unpause the game when "P" is pressed
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::P) && gameStarted == true) {
+      gameStarted = false;
+    } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::P) && gameStarted == false) {
       gameStarted = true;
     }
 
 
     if (gameStarted == true) {
-      // change ball direction when colliding
-      // TODO: Change ball direction when colliding
-      if (ball.getPosition().y > 600.0) {
-        ballAngleRad = ballAngleRad * -1.0;
-      } else if (ball.getPosition().y < 0.0) {
-        ballAngleRad = ballAngleRad * -1.0;
-      } else if (ball.getPosition().x < 10.0) {
-        ballAngleRad = (PI/180) - (ballAngleRad * -1.0);
-      } else if (ball.getPosition().x > 780.0) {
-        ballAngleRad = (PI/180) - (ballAngleRad * -1.0);
+      // init bounding boxes for checking ball to paddle collision
+      sf::FloatRect ballBoundingBox = ball.getGlobalBounds();
+      sf::FloatRect playerPaddleBoundingBox = playerPaddle.getGlobalBounds();
+      sf::FloatRect aiPaddleBoundingBox = aiPaddle.getGlobalBounds();
+
+      // generate a random perturbation
+      float random = ((float) rand()) / (float) RAND_MAX;
+      float r = random * (1.2 - 0.8);
+      float random_pert = 0.8 + r;
+
+      // if the ball bounces off the paddles
+      if (ballBoundingBox.intersects(playerPaddleBoundingBox) || ballBoundingBox.intersects(aiPaddleBoundingBox)) {
+        ballDirection.x *= (-1.0 * random_pert);
+      } else
+      // if the ball bounces off the left wall
+      if (ball.getPosition().x - ballRadius <= 0) {
+        ballDirection.x *= (-1.0 * random_pert);
+        aiScore += 1;
+        aiScoreTxt.setString(std::to_string(aiScore));
+        gameStarted = false;
+        ball.setPosition(appWidth / 2, appHeight / 2);
+      } else
+      // if the ball bounces off the right wall
+      if (ball.getPosition().x + ballRadius >= appWidth) {
+        ballDirection.x *= (-1.0 * random_pert);
+        playerScore += 1;
+        playerScoreTxt.setString(std::to_string(playerScore));
+        gameStarted = false;
+        ball.setPosition(appWidth / 2, appHeight / 2);
+      } else
+
+      // if the ball bounces off the top or bottom walls
+      if ((ball.getPosition().y - ballRadius <= 0.0) || (ball.getPosition().y + ballRadius >= appHeight)) {
+        ballDirection.y *= (-1.0 * random_pert);
       }
 
-      //start moving the ball
-      // TODO: Start moving the ball
-      ball.move(ballSpeed * std::cos(ballAngleRad), ballSpeed * std::sin(ballAngleRad));
+      // keep the ball moving
+      ball.move(ballDirection.x * elapsedTime * ballSpeed, ballDirection.y * elapsedTime * ballSpeed);
 
       // keyboard input for player paddle
       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)){
-        //std::cout << std::to_string(playerPaddle.getPosition().y) + "\n";
         if (playerPaddle.getPosition().y - playerPaddle.getSize().y / 2.0 > 0.0) {
-          playerPaddle.move(0.0f, -0.2f);
+          playerPaddle.move(0.0, -1.0 * elapsedTime * playerPaddleSpeed);
         }
       }
       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)){
-        if (playerPaddle.getPosition().y + (playerPaddle.getSize().y / 2.0) < App.getSize().y) {
-          playerPaddle.move(0.0f, 0.2f);
+        if (playerPaddle.getPosition().y + (playerPaddle.getSize().y / 2.0) < appHeight) {
+          playerPaddle.move(0.0, elapsedTime * playerPaddleSpeed);
         }
       }
 
       // ai paddle movement
-      if ( ( (aiPaddle.getPosition().y - aiPaddle.getSize().y) > (0.0) ) || ( (aiPaddle.getPosition().y < App.getSize().y) ) ){
-        aiPaddle.move(0.0f, ballSpeed * std::sin(ballAngleRad));
+      if (ball.getPosition().x > appWidth / 2) {       // if ball is in the ai's half, move the paddle towards the ball
+        if (aiPaddle.getPosition().y > ball.getPosition().y) {
+            aiPaddle.move(0.0, -1.0 * elapsedTime * aiPaddleSpeed);
+        } else if (aiPaddle.getPosition().y < ball.getPosition().y) {
+            aiPaddle.move(0.0, elapsedTime * aiPaddleSpeed);
+        }
+      } else {      // else, move the ai paddle towards the center
+        if (aiPaddle.getPosition().y > appHeight / 2) {
+            aiPaddle.move(0.0, -1.0 * elapsedTime * aiPaddleSpeed);
+        } else if (aiPaddle.getPosition().y < appHeight / 2) {
+            aiPaddle.move(0.0, elapsedTime * aiPaddleSpeed);
+        }
       }
 
     }
@@ -140,3 +188,17 @@ int main(int argc, char** argv)
   // Done.
   return 0;
 }
+
+// Necessary Features:
+// TODO: (Critical) Restart game when a player gets to 11
+// TODO: (Helpful) Text that displays if game is paused or not
+// TODO: If the ball starts moving straight up and down or straight left to right (or even at an angle but really bad) then add some change to the direction
+
+// Extra Credit Features:
+// TODO: Put audio in the game
+
+// Bugs:
+// TODO: (Critical) Ball sometimes slides across wall if it hits bottom wall or slides alongside wall/paddle if it hits side walls or paddles
+//        - try printing the direction vectors and see what happens on contact
+//        - last minute resort will be to create rectangles around the screen (hidden) and create using bounding boxes
+//        - use else if's instead of just if's??

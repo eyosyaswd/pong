@@ -1,1 +1,0 @@
-/usr/bin/c++    -std=c++11 -g   CMakeFiles/Logic.dir/bin/Logic.cpp.o  -o Logic -rdynamic -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lsfml-network 

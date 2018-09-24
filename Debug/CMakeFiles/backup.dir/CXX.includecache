@@ -6,3 +6,11 @@
 
 #IncludeRegexTransform: 
 
+/home/f85/ewdagn/cs437/pong/bin/backup.cpp
+SFML/Graphics.hpp
+-
+iostream
+-
+cmath
+-
+

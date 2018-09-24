@@ -97,6 +97,43 @@ clean: CMakeFiles/Demo.dir/clean
 .PHONY : clean
 
 #=============================================================================
+# Target rules for target CMakeFiles/backup.dir
+
+# All Build rule for target.
+CMakeFiles/backup.dir/all: CMakeFiles/pong_core.dir/all
+	$(MAKE) -f CMakeFiles/backup.dir/build.make CMakeFiles/backup.dir/depend
+	$(MAKE) -f CMakeFiles/backup.dir/build.make CMakeFiles/backup.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/f85/ewdagn/cs437/pong/Debug/CMakeFiles --progress-num=5,6 "Built target backup"
+.PHONY : CMakeFiles/backup.dir/all
+
+# Include target in all.
+all: CMakeFiles/backup.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/backup.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/f85/ewdagn/cs437/pong/Debug/CMakeFiles 7
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/backup.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/f85/ewdagn/cs437/pong/Debug/CMakeFiles 0
+.PHONY : CMakeFiles/backup.dir/rule
+
+# Convenience name for target.
+backup: CMakeFiles/backup.dir/rule
+
+.PHONY : backup
+
+# clean rule for target.
+CMakeFiles/backup.dir/clean:
+	$(MAKE) -f CMakeFiles/backup.dir/build.make CMakeFiles/backup.dir/clean
+.PHONY : CMakeFiles/backup.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/backup.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
 # Target rules for target CMakeFiles/Pong.dir
 
 # All Build rule for target.
@@ -140,7 +177,7 @@ clean: CMakeFiles/Pong.dir/clean
 CMakeFiles/pong_core.dir/all:
 	$(MAKE) -f CMakeFiles/pong_core.dir/build.make CMakeFiles/pong_core.dir/depend
 	$(MAKE) -f CMakeFiles/pong_core.dir/build.make CMakeFiles/pong_core.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/f85/ewdagn/cs437/pong/Debug/CMakeFiles --progress-num=5,6,7,8,9 "Built target pong_core"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/f85/ewdagn/cs437/pong/Debug/CMakeFiles --progress-num=7,8,9,10,11 "Built target pong_core"
 .PHONY : CMakeFiles/pong_core.dir/all
 
 # Include target in all.
