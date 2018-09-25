@@ -86,12 +86,12 @@ int main(int argc, char** argv)
   sf::RectangleShape aiPaddle(sf::Vector2f(10.0, 100.0));
   aiPaddle.setOrigin(aiPaddle.getSize().x/2, aiPaddle.getSize().y/2);
   aiPaddle.setPosition(appWidth - aiPaddle.getSize().x / 2, appHeight / 2);
-  float aiPaddleSpeed = 200.0;
+  float aiPaddleSpeed = 280.0;
 
   // init ball
   sf::Vector2f ballDirection(1.0, 0.5);
   float ballRadius = 5.0;
-  float ballSpeed = 350.0;
+  float ballSpeed = 500.0;
   sf::CircleShape ball(ballRadius);
   ball.setOrigin(ballRadius, ballRadius);
   ball.setPosition(appWidth / 2, appHeight / 2);
@@ -152,7 +152,7 @@ int main(int argc, char** argv)
       gameStarted = false;
     }
 
-    //start a new game when "N" is pressed
+    // start a new game when "N" is pressed
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::N) && gameStarted == false) {
       playerScore = 0;
       aiScore = 0;
@@ -160,6 +160,13 @@ int main(int argc, char** argv)
       aiWon = false;
       playerScoreTxt.setString(std::to_string(playerScore));
       aiScoreTxt.setString(std::to_string(aiScore));
+      ballDirection.x = 1.0;
+      ballDirection.y = 0.5;
+    }
+
+    // close the game if "ESC" is pressed
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape) && gameStarted == false) {
+      App.close();
     }
 
     // what to do when game is being played
@@ -177,12 +184,12 @@ int main(int argc, char** argv)
       // if the ball bounces off the paddles
       if (ballBoundingBox.intersects(playerPaddleBoundingBox) || ballBoundingBox.intersects(aiPaddleBoundingBox)) {
         kickingSound.play();
-        ballDirection.x *= (-1.0 + random_pert);
+        ballDirection.x = 0 - ballDirection.x + random_pert;
       } else
       // if the ball bounces off the left wall (a.k.a. the ai scores)
       if (ball.getPosition().x - ballRadius <= 0) {
         booingSound.play();
-        ballDirection.x *= (-1.0 + random_pert);
+        ballDirection.x = 0 - ballDirection.x + random_pert;
         aiScore += 1;
         aiScoreTxt.setString(std::to_string(aiScore));
         gameStarted = false;
@@ -193,7 +200,7 @@ int main(int argc, char** argv)
       // if the ball bounces off the right wall (a.k.a. the player scores)
       if (ball.getPosition().x + ballRadius >= appWidth) {
         cheeringSound.play();
-        ballDirection.x *= (-1.0 + random_pert);
+        ballDirection.x = 0 - ballDirection.x + random_pert;
         playerScore += 1;
         playerScoreTxt.setString(std::to_string(playerScore));
         gameStarted = false;
@@ -203,13 +210,46 @@ int main(int argc, char** argv)
       } else
 
       // if the ball bounces off the top or bottom walls
-      if ((ball.getPosition().y - ballRadius <= 0.0) || (ball.getPosition().y + ballRadius >= appHeight)) {
-        ballDirection.y *= (-1.0 + random_pert);
+      if ((ball.getPosition().y - ballRadius <= 0.0)){
+        ball.setPosition(ball.getPosition().x, 10.0);
+        ballDirection.y = 0 - ballDirection.y + random_pert;
       }
+      if (ball.getPosition().y + ballRadius >= appHeight) {
+        //ball.setPosition(10.0, appHeight - ballRadius);
+        ballDirection.y = 0 - ballDirection.y + random_pert;
+      }
+
+      // DEBUG
+      // adjust the speed of the game
+      // if ( (ballDirection.x * elapsedTime * ballSpeed < 0.15 && ballDirection.x * elapsedTime * ballSpeed > -0.15) && (ballDirection.y * elapsedTime * ballSpeed < 0.15 && ballDirection.y * elapsedTime * ballSpeed > -0.15) ) {
+      //   ballSpeed += 50.0;
+      // }
+      //
+      // if (ballDirection.x * elapsedTime * ballSpeed < 0.0001 && ballDirection.x * elapsedTime * ballSpeed > -0.0001) {
+      //   ballSpeed += 10.0;
+      // }
+      // if (ballDirection.y * elapsedTime * ballSpeed < 0.0001 && ballDirection.y * elapsedTime * ballSpeed > -0.0001) {
+      //   ballSpeed += 10.0;
+      // }
+      // if (ballDirection.x * elapsedTime * ballSpeed > 0.7 || ballDirection.x * elapsedTime * ballSpeed < -0.7) {
+      //   ballSpeed -= 10.0;
+      // }
+      // if (ballDirection.y * elapsedTime * ballSpeed > 0.7 || ballDirection.y * elapsedTime * ballSpeed < -0.7) {
+      //   ballSpeed -= 10.0;
+      // }
 
       // keep the ball moving
       ball.move(ballDirection.x * elapsedTime * ballSpeed, ballDirection.y * elapsedTime * ballSpeed);
-      std::cout << "ballDirection.x == " + std::to_string(ballDirection.x) + ", ballDirection.y == " + std::to_string(ballDirection.y) << std::endl;
+
+      // DEBUG:
+      // std::cout << "x velocity == " + std::to_string(ballDirection.x * elapsedTime * ballSpeed) + ", y velocity == " + std::to_string(ballDirection.y * elapsedTime * ballSpeed) << std::endl;
+      // std::cout << "ballDirection.x == " + std::to_string(ballDirection.x) << std::endl;
+      // std::cout << "ballDirection.y == " + std::to_string(ballDirection.y) << std::endl;
+      // std::cout << "elapsedTime == " + std::to_string(elapsedTime) << std::endl;
+      // std::cout << "ballSpeed == " + std::to_string(ballSpeed) << std::endl;
+      // if (ballDirection.x * elapsedTime * ballSpeed < 0.0001 && ballDirection.x * elapsedTime * ballSpeed > -0.0001) {
+        // App.close();
+      // }
 
       // keyboard input for player paddle
       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)){
@@ -225,15 +265,15 @@ int main(int argc, char** argv)
 
       // ai paddle movement
       if (ball.getPosition().x > appWidth / 2) {       // if ball is in the ai's half, move the paddle towards the ball
-        if (aiPaddle.getPosition().y > ball.getPosition().y) {
+        if (aiPaddle.getPosition().y > ball.getPosition().y && (aiPaddle.getPosition().y - aiPaddle.getSize().y / 2.0 > 0.0)) {
             aiPaddle.move(0.0, -1.0 * elapsedTime * aiPaddleSpeed);
-        } else if (aiPaddle.getPosition().y < ball.getPosition().y) {
+        } else if (aiPaddle.getPosition().y < ball.getPosition().y && (aiPaddle.getPosition().y + (aiPaddle.getSize().y / 2.0))< appHeight) {
             aiPaddle.move(0.0, elapsedTime * aiPaddleSpeed);
         }
       } else {      // else, move the ai paddle towards the center
-        if (aiPaddle.getPosition().y > appHeight / 2) {
+        if (aiPaddle.getPosition().y > appHeight / 2 && (aiPaddle.getPosition().y - aiPaddle.getSize().y / 2.0 > 0.0)) {
             aiPaddle.move(0.0, -1.0 * elapsedTime * aiPaddleSpeed);
-        } else if (aiPaddle.getPosition().y < appHeight / 2) {
+        } else if (aiPaddle.getPosition().y < appHeight / 2 && (aiPaddle.getPosition().y + (aiPaddle.getSize().y / 2.0))< appHeight) {
             aiPaddle.move(0.0, elapsedTime * aiPaddleSpeed);
         }
       }
