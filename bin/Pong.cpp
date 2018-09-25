@@ -64,13 +64,35 @@ int main(int argc, char** argv)
   float aiPaddleSpeed = 200.0;
 
   // init ball
-  sf::Vector2f ballDirection(1.0, 1.0);
-  float ballRadius = 8.0;
-  float ballSpeed = 300.0;
+  sf::Vector2f ballDirection(10.0, 10.0);
+  float ballRadius = 5.0;
+  float ballSpeed = 40.0;
   sf::CircleShape ball(ballRadius);
   ball.setOrigin(ballRadius, ballRadius);
   ball.setPosition(appWidth / 2, appHeight / 2);
 
+  // init win messages and variables
+  sf::Text youWonMessage;
+  youWonMessage.setFont(font);
+  youWonMessage.setString("Congratulations, you won!\nPress 'N' to play a new game.\nOr press 'ESC' to quit the game.");
+  youWonMessage.setCharacterSize(30);
+  youWonMessage.setPosition(60, 300);
+  bool playerWon = false;
+
+  // init lost message and variable
+  sf::Text youLostMessage;
+  youLostMessage.setFont(font);
+  youLostMessage.setString("You lost :(, better luck next time!\nPress 'N' to play a new game.\nOr press 'ESC' to quit the game.");
+  youLostMessage.setCharacterSize(30);
+  youLostMessage.setPosition(60, 300);
+  bool aiWon = false;
+
+  // init message to press "Space" to play new game
+  sf::Text pressSpace;
+  pressSpace.setFont(font);
+  pressSpace.setString("Press 'SPACE' to start.");
+  pressSpace.setCharacterSize(30);
+  pressSpace.setPosition(170, 500);
 
   // start main loop
   while(App.isOpen())
@@ -88,7 +110,7 @@ int main(int argc, char** argv)
     float elapsedTime = Clock.getElapsedTime().asSeconds();
     Clock.restart();
 
-    // start/unpause game if Space bar is pressed
+    // start/unpause game if "Space" is pressed
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {
       gameStarted = true;
     }
@@ -100,46 +122,64 @@ int main(int argc, char** argv)
       gameStarted = true;
     }
 
+    //start a new game when "N" is pressed
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::N) && gameStarted == false) {
+      playerScore = 0;
+      aiScore = 0;
+      playerWon = false;
+      aiWon = false;
+      playerScoreTxt.setString(std::to_string(playerScore));
+      aiScoreTxt.setString(std::to_string(aiScore));
+    }
 
+    // what to do when game is being played
     if (gameStarted == true) {
       // init bounding boxes for checking ball to paddle collision
       sf::FloatRect ballBoundingBox = ball.getGlobalBounds();
       sf::FloatRect playerPaddleBoundingBox = playerPaddle.getGlobalBounds();
       sf::FloatRect aiPaddleBoundingBox = aiPaddle.getGlobalBounds();
 
-      // generate a random perturbation
+      // generate a random perturbation (between -0.2 and 0.2)
       float random = ((float) rand()) / (float) RAND_MAX;
-      float r = random * (1.2 - 0.8);
-      float random_pert = 0.8 + r;
+      float r = random * (0.2 - (-0.2));
+      float random_pert = -0.2 + r;
+
+      std::cout << "random_pert == " + std::to_string(random_pert) << std::endl;
 
       // if the ball bounces off the paddles
       if (ballBoundingBox.intersects(playerPaddleBoundingBox) || ballBoundingBox.intersects(aiPaddleBoundingBox)) {
-        ballDirection.x *= (-1.0 * random_pert);
+        ballDirection.x *= (-1.0 + random_pert);
       } else
-      // if the ball bounces off the left wall
+      // if the ball bounces off the left wall (a.k.a. the ai scores)
       if (ball.getPosition().x - ballRadius <= 0) {
-        ballDirection.x *= (-1.0 * random_pert);
+        ballDirection.x *= (-1.0 + random_pert);
         aiScore += 1;
         aiScoreTxt.setString(std::to_string(aiScore));
         gameStarted = false;
         ball.setPosition(appWidth / 2, appHeight / 2);
+        playerPaddle.setPosition(0.0 + playerPaddle.getSize().x / 2, appHeight / 2);
+        aiPaddle.setPosition(appWidth - aiPaddle.getSize().x / 2, appHeight / 2);
       } else
-      // if the ball bounces off the right wall
+      // if the ball bounces off the right wall (a.k.a. the player scores)
       if (ball.getPosition().x + ballRadius >= appWidth) {
-        ballDirection.x *= (-1.0 * random_pert);
+        ballDirection.x *= (-1.0 + random_pert);
         playerScore += 1;
         playerScoreTxt.setString(std::to_string(playerScore));
         gameStarted = false;
         ball.setPosition(appWidth / 2, appHeight / 2);
+        playerPaddle.setPosition(0.0 + playerPaddle.getSize().x / 2, appHeight / 2);
+        aiPaddle.setPosition(appWidth - aiPaddle.getSize().x / 2, appHeight / 2);
       } else
 
       // if the ball bounces off the top or bottom walls
       if ((ball.getPosition().y - ballRadius <= 0.0) || (ball.getPosition().y + ballRadius >= appHeight)) {
-        ballDirection.y *= (-1.0 * random_pert);
+        ballDirection.y *= (-1.0 + random_pert);
       }
 
       // keep the ball moving
       ball.move(ballDirection.x * elapsedTime * ballSpeed, ballDirection.y * elapsedTime * ballSpeed);
+      std::cout << "ballDirection.x == " + std::to_string(ballDirection.x) + ", ballDirection.y == " + std::to_string(ballDirection.y) << std::endl;
+      std::cout << "elapsedTime == " + std::to_string(elapsedTime) << std::endl;
 
       // keyboard input for player paddle
       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)){
@@ -170,6 +210,19 @@ int main(int argc, char** argv)
 
     }
 
+    // when a player reaches score 11
+    if (playerScore == 11) {
+      playerWon = true;
+      gameStarted = false;
+      playerScoreTxt.setString(std::to_string(playerScore));
+      aiScoreTxt.setString(std::to_string(aiScore));
+    } else if (aiScore == 11) {
+      aiWon = true;
+      gameStarted = false;
+      playerScoreTxt.setString(std::to_string(playerScore));
+      aiScoreTxt.setString(std::to_string(aiScore));
+    }
+
     //clear screen
     App.clear();
 
@@ -180,6 +233,14 @@ int main(int argc, char** argv)
     App.draw(playerPaddle);
     App.draw(aiPaddle);
     App.draw(ball);
+    if (playerWon == true) {
+      App.draw(youWonMessage);
+    } else if (aiWon == true) {
+      App.draw(youLostMessage);
+    }
+    if ( (gameStarted == false) && (playerWon == false && aiWon == false) ) {
+      App.draw(pressSpace);
+    }
 
     // display
     App.display();
@@ -188,14 +249,6 @@ int main(int argc, char** argv)
   // Done.
   return 0;
 }
-
-// Necessary Features:
-// TODO: (Critical) Restart game when a player gets to 11
-// TODO: (Helpful) Text that displays if game is paused or not
-// TODO: If the ball starts moving straight up and down or straight left to right (or even at an angle but really bad) then add some change to the direction
-
-// Extra Credit Features:
-// TODO: Put audio in the game
 
 // Bugs:
 // TODO: (Critical) Ball sometimes slides across wall if it hits bottom wall or slides alongside wall/paddle if it hits side walls or paddles
