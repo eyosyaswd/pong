@@ -9,6 +9,8 @@
 /home/f85/ewdagn/cs437/pong/bin/Pong.cpp
 SFML/Graphics.hpp
 -
+SFML/Audio.hpp
+-
 iostream
 -
 cmath

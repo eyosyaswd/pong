@@ -3,6 +3,7 @@
 // -- SFML layer
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
@@ -19,7 +20,7 @@ int main(int argc, char** argv)
   bool gameStarted = false;
   sf::Clock Clock;
 
-  // load the background image
+  // init the background image
   sf::Texture backgroundTexture;
   if (!backgroundTexture.loadFromFile("../res/images/soccer_field_background.jpg")) {
     std::cout << "Error occued while loading background image file" << std::endl;
@@ -29,11 +30,35 @@ int main(int argc, char** argv)
   backgroundSprite.setTexture(backgroundTexture);
   backgroundSprite.setOrigin(18, 10);
 
-  // load a font used for writing the score and messages
+  // init a font used for writing the score and messages
   sf::Font font;
   if (!font.loadFromFile("../res/fonts/neuropol_x_rg.ttf")){
     std::cout << "Error occured while loading font file" << std::endl;
   }
+
+  // init kicking sound (when ball bounces off player or ai paddle)
+  sf::SoundBuffer kickingSoundBuffer;
+  if (!kickingSoundBuffer.loadFromFile("../res/sounds/soccer_kick.wav")) {
+    std::cout << "Error occured while loading kicking sound file" << std::endl;
+  }
+  sf::Sound kickingSound;
+  kickingSound.setBuffer(kickingSoundBuffer);
+
+  // init cheering sound (when player scores)
+  sf::SoundBuffer cheeringSoundBuffer;
+  if (!cheeringSoundBuffer.loadFromFile("../res/sounds/cheering.wav")) {
+    std::cout << "Error occured while loading kicking sound file" << std::endl;
+  }
+  sf::Sound cheeringSound;
+  cheeringSound.setBuffer(cheeringSoundBuffer);
+
+  // init booing sound (when ai scores)
+  sf::SoundBuffer booingSoundBuffer;
+  if (!booingSoundBuffer.loadFromFile("../res/sounds/booing.wav")) {
+    std::cout << "Error occured while loading kicking sound file" << std::endl;
+  }
+  sf::Sound booingSound;
+  booingSound.setBuffer(booingSoundBuffer);
 
   // init player's score
   int playerScore = 0;
@@ -64,9 +89,9 @@ int main(int argc, char** argv)
   float aiPaddleSpeed = 200.0;
 
   // init ball
-  sf::Vector2f ballDirection(10.0, 10.0);
+  sf::Vector2f ballDirection(1.0, 0.5);
   float ballRadius = 5.0;
-  float ballSpeed = 40.0;
+  float ballSpeed = 350.0;
   sf::CircleShape ball(ballRadius);
   ball.setOrigin(ballRadius, ballRadius);
   ball.setPosition(appWidth / 2, appHeight / 2);
@@ -122,6 +147,11 @@ int main(int argc, char** argv)
       gameStarted = true;
     }
 
+    // pause game if window is out of focus (e.g. minimized)
+    if (App.hasFocus() == false) {
+      gameStarted = false;
+    }
+
     //start a new game when "N" is pressed
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::N) && gameStarted == false) {
       playerScore = 0;
@@ -144,14 +174,14 @@ int main(int argc, char** argv)
       float r = random * (0.2 - (-0.2));
       float random_pert = -0.2 + r;
 
-      std::cout << "random_pert == " + std::to_string(random_pert) << std::endl;
-
       // if the ball bounces off the paddles
       if (ballBoundingBox.intersects(playerPaddleBoundingBox) || ballBoundingBox.intersects(aiPaddleBoundingBox)) {
+        kickingSound.play();
         ballDirection.x *= (-1.0 + random_pert);
       } else
       // if the ball bounces off the left wall (a.k.a. the ai scores)
       if (ball.getPosition().x - ballRadius <= 0) {
+        booingSound.play();
         ballDirection.x *= (-1.0 + random_pert);
         aiScore += 1;
         aiScoreTxt.setString(std::to_string(aiScore));
@@ -162,6 +192,7 @@ int main(int argc, char** argv)
       } else
       // if the ball bounces off the right wall (a.k.a. the player scores)
       if (ball.getPosition().x + ballRadius >= appWidth) {
+        cheeringSound.play();
         ballDirection.x *= (-1.0 + random_pert);
         playerScore += 1;
         playerScoreTxt.setString(std::to_string(playerScore));
@@ -179,7 +210,6 @@ int main(int argc, char** argv)
       // keep the ball moving
       ball.move(ballDirection.x * elapsedTime * ballSpeed, ballDirection.y * elapsedTime * ballSpeed);
       std::cout << "ballDirection.x == " + std::to_string(ballDirection.x) + ", ballDirection.y == " + std::to_string(ballDirection.y) << std::endl;
-      std::cout << "elapsedTime == " + std::to_string(elapsedTime) << std::endl;
 
       // keyboard input for player paddle
       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)){
